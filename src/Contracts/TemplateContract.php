@@ -5,12 +5,27 @@ declare(strict_types=1);
 namespace Simply\SyTemplate\Contracts;
 
 use  Simply\SyTemplate\Exceptions\FileViewNotFoundException;
+use  Simply\SyTemplate\Exceptions\PropertyNotFoundException;
+use ReflectionClass;
 /**
 * @author André Teles
 */
 
 abstract class TemplateContract
 {
+
+	/**
+	 * [$helper]
+	 * @var [array]
+	 */
+	protected $helper = [];
+
+	/**
+	 * [$helpersDefault]
+	 * @var [array]
+	 */
+	protected $helpersDefault = [];
+
 	/**
 	 * [$templatePath path to views]
 	 * @var [string]
@@ -37,6 +52,31 @@ abstract class TemplateContract
 		}
 
 		$this->templatePath = $path;
+
+		if( method_exists($this,'boot') ){
+
+			$this->boot();
+		}
+	}
+
+	public function __get($property)
+	{
+		if( ! property_exists($this, $property)){
+
+			throw new PropertyNotFoundException("Property {$property} not found");
+		}
+
+		return $this->helper[$property];
+	}
+
+	public function __set($property, $value)
+	{
+		if( !property_exists($this,$property) ){
+
+			$this->helper[$property] = $value;
+		}
+
+		throw new PropertyNotFoundException("Property {$property} already exists");
 	}
 
 	/**
@@ -46,10 +86,10 @@ abstract class TemplateContract
 	public function setTemplateFile(string $file): void
 	{
 		if( !$this->fileIsAvalible($file) ){
-			die('template not found!');
+			throw new FileViewNotFoundException("Unable to load template file {$file}.php");
 		}
 
-		$this->fileLayout = "/../../../../resources/views/{$file}.php";
+		$this->fileLayout = $this->templatePath . $file;
 	}
 
 	/**
@@ -57,8 +97,8 @@ abstract class TemplateContract
 	 * @return [type] [description]
 	 */
 	protected function loadTemplateFile(): void
-	{
-		include_once __DIR__ . $this->fileLayout;
+	{	
+		include_once $this->fileLayout . '.php';
 
 		return;
 	}
@@ -78,15 +118,13 @@ abstract class TemplateContract
 	 * @return [type]           [description]
 	 */
 	protected function fileIsAvalible( string $file): bool
-	{
-		if(! file_exists(__DIR__ . $this->templatePath . $file . '.php') ){
+	{	
+		if(! file_exists($this->templatePath  . $file . '.php') ){
 
 			throw new FileViewNotFoundException("Unable to load file {$file}.php");	
 		}
 
 		return true;
-		
-		//return file_exists(__DIR__ . $this->templatePath . $template . '.php');
 	}
 
 	/**
@@ -97,14 +135,38 @@ abstract class TemplateContract
 	public function include($file): void
 	{
 		if( !$this->fileIsAvalible($file) ){
-			// throw new FileViewNotFoundException("File {$file} not found");
-			die('erro ao carregar conteudo');
+			throw new FileViewNotFoundException("Error to incluide file {$file}.php");
 		}
 
-		include_once __DIR__ . $this->templatePath . $file . '.php';
+		include_once $this->templatePath . $file . '.php';
 		
 		return;	
 			
 	}
+
+	protected function check(): bool
+	{
+		foreach($this->helpersDefault as $type => $helper){
+			
+			$class = new ReflectionClass($helper);
+		 	
+			 return is_string($type) || $class->isInstantiable();
+		}
+
+			if( !empty($this->helpers) ){
+
+				foreach($this->helpersDefault as $type => $helper){
+				
+				$class = new ReflectionClass($helper);
+				
+				return is_string($type) || $class->isInstantiable();
+			}
+
+		}
+	}
+
+	abstract protected  function boot();
+
+	
 
 }
