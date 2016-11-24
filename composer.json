@@ -1,0 +1,19 @@
+{
+    "name": "simplesmente/sy-template",
+    "description": "Simple Template for render file of visualizations",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "André Teles",
+            "email": "winchestersystem@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload":{
+        "psr-4":{
+            "Simply\\SyTemplate\\":"src"
+        }
+    }
+}
