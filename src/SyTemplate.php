@@ -80,7 +80,6 @@ class SyTemplate extends TemplateContract
 
 			'errors'   => ['somethingClassErrors'] 
 		];
-		// do nothing
 	}
 
 	protected function  boot(): void

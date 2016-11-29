@@ -80,6 +80,15 @@ abstract class TemplateContract
 	}
 
 	/**
+	 * [setTemplatePath description]
+	 * @param [type] $path [description]
+	 */
+	public function setTemplatePath($path): void
+	{
+		$this->templatePath = $path;
+	}
+	
+	/**
 	 * [setTemplateFile description]
 	 * @param [string] $file [description]
 	 */
